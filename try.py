@@ -1,4 +1,4 @@
-import heapq
+import heapq, sys, getopt
 
 def dijkstra(adj, costs, s, t):
 	''' Return predecessors and min distance if there exists a shortest path 
@@ -49,17 +49,64 @@ def make_undirected(cost):
     	return ucost
 
 def main():
-    	# adjacent list
+        inputFile = ''
+        inputFile = str(sys.argv[1])
+
+        f = open(inputFile, 'r')
+
+        line = ""
+        G = {}                                                          #create container for directed graph
+        U = {}                                                          #create container for undirected graph
+	cost = {}
+
+        for line in f.readlines():                                      #fill up adjacency list (directed & undirected)
+                if line[0] <> '#':
+                        row = line.split(' ')
+
+			if (len(row) == 1) and (row[0] <> '\n'):
+				if str((row[0])[0]) == 'D':
+					key = str((row[0])[0])
+				else:
+					key = str((row[0])[0]) + str((row[0])[1])
+
+                        elif row[0] <> '\n':
+                                row[0] = str(row[0])
+                                row[1] = str(row[1])
+				row[2] = int(row[2])
+
+				if key == 'D':
+                                	if row[0] in G:
+                                        	G[row[0]].append(row[1])
+                                	else:
+                                        	G[row[0]] = [row[1]]
+					
+					cost[(row[0], row[1])] = row[2]
+					
+				elif key == "UD":
+                                	if row[0] in U:
+                                        	U[row[0]].append(row[1])
+                                	else:
+                                        	U[row[0]] = [row[1]]
+
+                                	if row[1] in U:
+                                        	U[row[1]].append(row[0])
+                                	else:
+                                        	U[row[1]] = [row[0]]
+
+	print G
+	print U
+	print cost
+
+    	'''
     	adj = { 'A': ['B','C','F'],
             	'B': ['A','C','D'],
             	'C': ['A','B','D','F'],
             	'D': ['B','C','E','F'],
             	'E': ['D','F','G'],
             	'F': ['A','C','E','G'],
-            	'G': ['D','E','F']}
+            	'G': ['D','E','F']} '''
 
-    	# edge costs
-    	cost = { ('A','B'):7,
+    	temp = { ('A','B'):7,
             	('A','C'):9,
             	('A','F'):14,
             	('B','C'):10,
@@ -72,9 +119,14 @@ def main():
             	('E','G'):1,
             	('F','G'):12}
 
+	print temp
     	cost = make_undirected(cost)
 
 	s = 'B'
+	if key == 'D':
+		adj = G
+	elif key == 'UD':
+		adj = U
 
 	print "Dijkstra"
 	print "Source : " + s
