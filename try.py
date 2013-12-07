@@ -17,10 +17,10 @@ def dijkstra(adj, costs, s, t):
         	Qd[v] = item
 
     	while Q:
-        	print Q
+        	#print Q
         	cost, parent, u = heapq.heappop(Q)
         	if u not in visited_set:
-            		print 'visit:', u
+            		#print 'visit:', u
             		p[u]= parent
             		visited_set.add(u)
             		if u == t:
@@ -49,9 +49,40 @@ def make_undirected(cost):
         	ucost[(k[1],k[0])] = w
     	return ucost
 
+def find_all_paths(graph, start, end, maximum, path=[]):
+      	path = path + [start]
+       	if start == end:
+           	return [path]
+       	if not graph.has_key(start):
+            	return []
+       	paths = []
+       	for node in graph[start]:
+            	if node not in path:
+                	newpaths = find_all_paths(graph, node, end, maximum, path)
+                	for newpath in newpaths:
+				if len(newpath) <= maximum:
+                    			paths.append(newpath)
+       	return paths
+
+def findMinPath(cost, paths):
+	weight = 0
+	maxLength = 0
+	minCost = 10000000000
+	
+	for path in paths:
+		maxLength = len(path) - 1
+		for i in range(0, maxLength):
+			weight += cost[(path[i], path[i+1])]
+		if weight < minCost:
+			minCost = weight
+		weight = 0
+	return minCost
+
 def main():
         inputFile = ''
         inputFile = str(sys.argv[1])
+	sourceNode = str(sys.argv[2])
+	kInteger = int(sys.argv[3])
 
         f = open(inputFile, 'r')
 
@@ -131,7 +162,7 @@ def main():
 
 	print temp
 
-	s = 'A'
+	s = sourceNode
 	if key == 'D':
 		adj = G
 	elif key == 'UD':
@@ -146,6 +177,12 @@ def main():
 			predecessors, min_cost = dijkstra(adj, cost, s, t)
 			print "Node " + t + " : " + str(min_cost)
 	print "End Dijkstra"
+
+	#now for the shortest reliable paths algorithm
+
+	paths = find_all_paths(adj, sourceNode, 'D', kInteger)
+	print paths
+	print findMinPath(cost, paths)
 
 if __name__=='__main__':
 	main()
