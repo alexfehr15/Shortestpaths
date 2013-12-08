@@ -1,14 +1,13 @@
 import heapq, sys, getopt
 
-def dijkstra(adj, costs, s, t):
-	''' Return predecessors and min distance if there exists a shortest path 
-	from s to t; Otherwise, return None '''
+#Dijkstra's algorithm, computes shortest path from source node to end node
 
-	Q = []     # priority queue of items; note item is mutable.
-	d = {s: 0} # vertex -> minimal distance
-	Qd = {}    # vertex -> [d[v], parent_v, v]
-	p = {}     # predecessor
-	visited_set = set([s])
+def dijkstra(adj, costs, s, t):
+	Q = []     		#priority queue
+	d = {s: 0} 		#vertex (minimal distance)
+	Qd = {}    		#[d[v], parent_v, v]
+	p = {}     		#predecessor
+	visited_set = set([s]) 	#set of visited vertices
 
 	for v in adj.get(s, []):
 		d[v] = costs[s, v]
@@ -17,10 +16,8 @@ def dijkstra(adj, costs, s, t):
         	Qd[v] = item
 
     	while Q:
-        	#print Q
         	cost, parent, u = heapq.heappop(Q)
         	if u not in visited_set:
-            		#print 'visit:', u
             		p[u]= parent
             		visited_set.add(u)
             		if u == t:
@@ -30,8 +27,8 @@ def dijkstra(adj, costs, s, t):
 					if (u, v) in costs:
                     				if d[v] > costs[u, v] + d[u]:
                         				d[v] =  costs[u, v] + d[u]
-                        				Qd[v][0] = d[v]    # decrease key
-                        				Qd[v][1] = u       # update predecessor
+                        				Qd[v][0] = d[v]    #decrease the key
+                        				Qd[v][1] = u       #update predecessor
                         				heapq._siftdown(Q, 0, Q.index(Qd[v]))
                 		else:
                     			d[v] = costs[u, v] + d[u]
@@ -42,6 +39,7 @@ def dijkstra(adj, costs, s, t):
     	return None
 
 #if graph is undirected, then run this before computing
+
 def make_undirected(cost):
     	ucost = {}
     	for k, w in cost.iteritems():
@@ -49,13 +47,16 @@ def make_undirected(cost):
         	ucost[(k[1],k[0])] = w
     	return ucost
 
-#find all paths between two nodes
+#find all paths between two nodes and eliminate ones that are greater than k in length
+
 def find_all_paths(graph, start, end, maximum, path=[]):
       	path = path + [start]
+
        	if start == end:
            	return [path]
        	if not graph.has_key(start):
             	return []
+
        	paths = []
        	for node in graph[start]:
             	if node not in path:
@@ -63,9 +64,11 @@ def find_all_paths(graph, start, end, maximum, path=[]):
                 	for newpath in newpaths:
 				if len(newpath) <= maximum:
                     			paths.append(newpath)
+
        	return paths
 
 #find the minimum cost path among the ones remaining
+
 def findMinPath(cost, paths):
 	weight = 0
 	maxLength = 0
@@ -78,10 +81,13 @@ def findMinPath(cost, paths):
 		if weight < minCost:
 			minCost = weight
 		weight = 0
+
 	if minCost <> 10000000000:
 		return minCost
 	else:
 		return "none"
+
+#runs with arguments <input_file source_node k>, executes two algorithms on directed or undirected graph
 
 def main():
         inputFile = ''
@@ -138,66 +144,32 @@ def main():
 
 					cost[(row[0], row[1])] = row[2]
 
-
-	''' print G
-	print U
-	print cost '''
-
-    	'''
-    	adj = { 'A': ['B','C','F'],
-            	'B': ['A','C','D'],
-            	'C': ['A','B','D','F'],
-            	'D': ['B','C','E','F'],
-            	'E': ['D','F','G'],
-            	'F': ['A','C','E','G'],
-            	'G': ['D','E','F']} '''
-
-    	temp = { ('A','B'):7,
-            	('A','C'):9,
-            	('A','F'):14,
-            	('B','C'):10,
-            	('B','D'):15,
-            	('C','D'):11,
-            	('C','F'):2,
-            	('D','E'):6,
-            	('E','F'):9,
-            	('D','G'):2,
-            	('E','G'):1,
-            	('F','G'):12}
-
-	#print temp
-
 	counter = len(edges)
-	s = sourceNode
-	if key == 'D':
+	if key == 'D':				#decide whether directed or undirected
 		adj = G
 	elif key == 'UD':
 		cost = make_undirected(cost)
 		adj = U
 
 	print "Dijkstra"
-	print "Source : " + s
-	print "Node " + s + " : " + str(0)
+	print "Source : " + sourceNode
+	print "Node " + sourceNode + " : " + str(0)
 	for t in edges:
-		if t <> s:
-			predecessors, min_cost = dijkstra(adj, cost, s, t)
+		if t <> sourceNode:
+			predecessors, min_cost = dijkstra(adj, cost, sourceNode, t)
 			print "Node " + t + " : " + str(min_cost)
-	print "End Dijkstra"
+	print "End Dijkstra\n"
 
 	#now for the shortest reliable paths algorithm
-
-	''' paths = find_all_paths(adj, sourceNode, 'D', kInteger)
-	print paths
-	print findMinPath(cost, paths) '''
 
 	print "Shortest Reliable Paths Algorithm"
 	print "Integer k : " + str(kInteger) + " Source : " + sourceNode
 	if (kInteger > (counter - 1)):
 		print "Node " + t + " : integer larger than |V| - 1"
 	else:
-		print "Node " + s + " : " + str(0)
+		print "Node " + sourceNode + " : " + str(0)
 	for t in edges:
-		if t <> s:
+		if t <> sourceNode:
 			paths = find_all_paths(adj, sourceNode, t, kInteger)
 			if (kInteger > (counter - 1)):
 				print "Node " + t + " : integer larger than |V| - 1"
