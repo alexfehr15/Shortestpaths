@@ -49,6 +49,7 @@ def make_undirected(cost):
         	ucost[(k[1],k[0])] = w
     	return ucost
 
+#find all paths between two nodes
 def find_all_paths(graph, start, end, maximum, path=[]):
       	path = path + [start]
        	if start == end:
@@ -64,6 +65,7 @@ def find_all_paths(graph, start, end, maximum, path=[]):
                     			paths.append(newpath)
        	return paths
 
+#find the minimum cost path among the ones remaining
 def findMinPath(cost, paths):
 	weight = 0
 	maxLength = 0
@@ -76,7 +78,10 @@ def findMinPath(cost, paths):
 		if weight < minCost:
 			minCost = weight
 		weight = 0
-	return minCost
+	if minCost <> 10000000000:
+		return minCost
+	else:
+		return "none"
 
 def main():
         inputFile = ''
@@ -134,9 +139,9 @@ def main():
 					cost[(row[0], row[1])] = row[2]
 
 
-	print G
+	''' print G
 	print U
-	print cost
+	print cost '''
 
     	'''
     	adj = { 'A': ['B','C','F'],
@@ -160,8 +165,9 @@ def main():
             	('E','G'):1,
             	('F','G'):12}
 
-	print temp
+	#print temp
 
+	counter = len(edges)
 	s = sourceNode
 	if key == 'D':
 		adj = G
@@ -180,9 +186,24 @@ def main():
 
 	#now for the shortest reliable paths algorithm
 
-	paths = find_all_paths(adj, sourceNode, 'D', kInteger)
+	''' paths = find_all_paths(adj, sourceNode, 'D', kInteger)
 	print paths
-	print findMinPath(cost, paths)
+	print findMinPath(cost, paths) '''
+
+	print "Shortest Reliable Paths Algorithm"
+	print "Integer k : " + str(kInteger) + " Source : " + sourceNode
+	if (kInteger > (counter - 1)):
+		print "Node " + t + " : integer larger than |V| - 1"
+	else:
+		print "Node " + s + " : " + str(0)
+	for t in edges:
+		if t <> s:
+			paths = find_all_paths(adj, sourceNode, t, kInteger)
+			if (kInteger > (counter - 1)):
+				print "Node " + t + " : integer larger than |V| - 1"
+			else:
+				print "Node " + t + " : " + str(findMinPath(cost, paths))
+	print "End Shortest Reliable Paths Algorithm"
 
 if __name__=='__main__':
 	main()
