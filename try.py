@@ -62,7 +62,7 @@ def find_all_paths(graph, start, end, maximum, path=[]):
             	if node not in path:
                 	newpaths = find_all_paths(graph, node, end, maximum, path)
                 	for newpath in newpaths:
-				if len(newpath) <= maximum:
+				if len(newpath) <= maximum + 1:
                     			paths.append(newpath)
 
        	return paths
@@ -91,11 +91,14 @@ def findMinPath(cost, paths):
 
 def main():
         inputFile = ''
+	outputFile = "output.txt"
         inputFile = str(sys.argv[1])
 	sourceNode = str(sys.argv[2])
 	kInteger = int(sys.argv[3])
 
         f = open(inputFile, 'r')
+	b = open(outputFile, 'w').close()
+	b = open(outputFile, 'w')
 
         line = ""
         G = {}                                                          #create container for directed graph
@@ -151,31 +154,34 @@ def main():
 		cost = make_undirected(cost)
 		adj = U
 
-	print "Dijkstra"
-	print "Source : " + sourceNode
-	print "Node " + sourceNode + " : " + str(0)
+	b.write("Dijkstra\n")
+	b.write("Source : " + sourceNode + '\n')
+	b.write("Node " + sourceNode + " : " + str(0) + '\n')
 	for t in edges:
 		if t <> sourceNode:
 			predecessors, min_cost = dijkstra(adj, cost, sourceNode, t)
-			print "Node " + t + " : " + str(min_cost)
-	print "End Dijkstra\n"
+			b.write("Node " + t + " : " + str(min_cost) + '\n')
+	b.write("End Dijkstra\n")
 
 	#now for the shortest reliable paths algorithm
 
-	print "Shortest Reliable Paths Algorithm"
-	print "Integer k : " + str(kInteger) + " Source : " + sourceNode
+	b.write("Shortest Reliable Paths Algorithm\n")
+	b.write("Integer k : " + str(kInteger) + " Source : " + sourceNode + '\n')
 	if (kInteger > (counter - 1)):
-		print "Node " + t + " : integer larger than |V| - 1"
+		b.write("Node " + t + " : integer larger than |V| - 1" + '\n')
 	else:
-		print "Node " + sourceNode + " : " + str(0)
+		b.write("Node " + sourceNode + " : " + str(0) + '\n')
 	for t in edges:
 		if t <> sourceNode:
 			paths = find_all_paths(adj, sourceNode, t, kInteger)
 			if (kInteger > (counter - 1)):
-				print "Node " + t + " : integer larger than |V| - 1"
+				b.write("Node " + t + " : integer larger than |V| - 1\n")
 			else:
-				print "Node " + t + " : " + str(findMinPath(cost, paths))
-	print "End Shortest Reliable Paths Algorithm"
+				b.write("Node " + t + " : " + str(findMinPath(cost, paths)) + '\n')
+	b.write("End Shortest Reliable Paths Algorithm\n")
+
+	f.close()
+	b.close()
 
 if __name__=='__main__':
 	main()
