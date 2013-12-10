@@ -1,2 +1,2 @@
 all:
-	@python main.py input.txt A 7
+	@python main.py input.txt A 6

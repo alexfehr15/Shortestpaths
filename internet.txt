@@ -1,0 +1,18 @@
+#this graph was taken from the internet
+UD
+A C 1
+B S 3
+B D 4
+C E 1
+C D 3
+D E 1
+D T 3
+D F 5
+E G 2
+E T 4
+G E 2
+G T 3
+S A 4
+S D 7
+S B 3
+T F 5
