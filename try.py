@@ -36,7 +36,7 @@ def dijkstra(adj, costs, s, t):
                     			heapq.heappush(Q, item)
                     			Qd[v] = item
 
-    	return None
+    	return {}, -1
 
 #if graph is undirected, then run this before computing
 
@@ -160,7 +160,10 @@ def main():
 	for t in edges:
 		if t <> sourceNode:
 			predecessors, min_cost = dijkstra(adj, cost, sourceNode, t)
-			b.write("Node " + t + " : " + str(min_cost) + '\n')
+			if min_cost == -1:
+				b.write("Node " + t + " : " + "none" + '\n')
+			else:
+				b.write("Node " + t + " : " + str(min_cost) + '\n')
 	b.write("End Dijkstra\n")
 
 	#now for the shortest reliable paths algorithm
