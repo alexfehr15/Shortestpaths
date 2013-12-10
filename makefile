@@ -1,2 +1,2 @@
 all:
-	@python main.py stanford.txt
+	@python main.py input.txt A 7

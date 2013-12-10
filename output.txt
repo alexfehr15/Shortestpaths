@@ -1,12 +1,24 @@
 Dijkstra
-Source : G
-Node G : 0
-Node A : none
-Node B : none
+Source : A
+Node A : 0
+Node C : 5
+Node B : 4
+Node E : 14
+Node D : 13
+Node G : 6
+Node F : 19
+Node I : 10
+Node H : 19
 End Dijkstra
 Shortest Reliable Paths Algorithm
-Integer k : 2 Source : G
-Node G : 0
-Node A : none
-Node B : none
+Integer k : 2 Source : A
+Node A : 0
+Node C : 5
+Node B : 4
+Node E : 27
+Node D : 13
+Node G : 6
+Node F : 19
+Node I : 10
+Node H : none
 End Shortest Reliable Paths Algorithm

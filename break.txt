@@ -1,3 +1,16 @@
 D
-A G 2
-B G 4
+A G 6
+A B 4
+A C 5
+A I 10
+G B 2
+G D 7
+B G 2
+D E 1
+D H 6
+F C 14
+C F 14
+I A 10
+I E 17
+F G 2
+G I 10

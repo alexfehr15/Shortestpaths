@@ -1,177 +1,190 @@
-#Alex Fehr
-#COP4531 programming project 2
+import heapq, sys, getopt
 
-import sys, getopt
+#Dijkstra's algorithm, computes shortest path from source node to end node
 
-#algorithm to determine all strongly connected components of a graph
+def dijkstra(adjacency_list, weights, b, e):
+	priorityQueue = []     
+	distance = {b: 0} 
+	distanceQueue = {}   
+	pred = {}     
+	visited_set = set([b]) 
 
-def strongly_connected_components(vertices, edges):
-	identified = set()
-    	stack = []
-    	index = {}
-    	boundaries = []
+	for v in adjacency_list.get(b, []):
+		distance[v] = weights[b, v]
+        	item = [distance[v], b, v]
+        	heapq.heappush(priorityQueue, item)
+        	distanceQueue[v] = item
 
-    	for v in vertices:
-        	if v not in index:
-            		to_do = [('VISIT', v)]
-
-            		while to_do:
-                		operation_type, v = to_do.pop()
-
-                		if operation_type == 'VISIT':
-                    			index[v] = len(stack)
-                    			stack.append(v)
-                    			boundaries.append(index[v])
-                    			to_do.append(('POSTVISIT', v))
-                    			to_do.extend(reversed([('VISITEDGE', w) for w in edges[v]]))
-                		elif operation_type == 'VISITEDGE':
-                    			if v not in index:
-                        			to_do.append(('VISIT', v))
-                    			elif v not in identified:
-                        			while index[v] < boundaries[-1]:
-                            				boundaries.pop()
+    	while priorityQueue:
+        	cost, parent, u = heapq.heappop(priorityQueue)
+        	if u not in visited_set:
+            		pred[u]= parent
+            		visited_set.add(u)
+            		if u == e:
+                		return pred, distance[u]
+            		for v in adjacency_list.get(u, []):
+                		if distance.get(v):
+					if (u, v) in weights:
+                    				if distance[v] > weights[u, v] + distance[u]:
+                        				distance[v] =  weights[u, v] + distance[u]
+                        				distanceQueue[v][0] = distance[v] 
+                        				distanceQueue[v][1] = u   
+                        				heapq._siftdown(priorityQueue, 0, priorityQueue.index(distanceQueue[v]))
                 		else:
-                    			if boundaries[-1] == index[v]:
-                        			boundaries.pop()
-                        			scc = set(stack[index[v]:])
-                        			del stack[index[v]:]
-                        			identified.update(scc)
-                        			yield scc
+                    			distance[v] = weights[u, v] + distance[u]
+                    			item = [distance[v], u, v]
+                    			heapq.heappush(priorityQueue, item)
+                    			distanceQueue[v] = item
 
-#parse through input file and create graph, call functions to analyze graph
+    	return {}, -1	#did not find a path
+
+#if graph is undirected, then run this before computing
+
+def transformToUndirected(cost):
+    	cost2 = {}
+    	for k, w in cost.iteritems():
+        	cost2[k] = w
+        	cost2[(k[1],k[0])] = w
+    	return cost2
+
+#find all paths between two nodes and eliminate ones that are greater than k in length
+
+def find_all_paths(graph, start, end, maximum, path=[]):
+      	path = path + [start]
+
+       	if start == end:
+           	return [path]
+       	if not graph.has_key(start):
+            	return []
+
+       	paths = []
+       	for node in graph[start]:
+            	if node not in path:
+                	newpaths = find_all_paths(graph, node, end, maximum, path)
+                	for newpath in newpaths:
+				if len(newpath) <= maximum + 1:
+                    			paths.append(newpath)
+
+       	return paths
+
+#find the minimum cost path among the ones remaining
+
+def findMinPath(cost, paths):
+	weight = 0
+	maxLength = 0
+	minCost = 10000000000
+	
+	for path in paths:
+		maxLength = len(path) - 1
+		for i in range(0, maxLength):
+			weight += cost[(path[i], path[i+1])]
+		if weight < minCost:
+			minCost = weight
+		weight = 0
+
+	if minCost <> 10000000000:
+		return minCost
+	else:
+		return "none"
+
+#runs with arguments <input_file source_node k>, executes two algorithms on directed or undirected graph
 
 def main():
-	inputFile = ''
-	inputFile = str(sys.argv[1])
+        inputFile = ''
+	outputFile = "output.txt"
+        inputFile = str(sys.argv[1])
+	sourceNode = str(sys.argv[2])
+	kInteger = int(sys.argv[3])
 
-	f = open(inputFile, 'r')
+        f = open(inputFile, 'r')
+	b = open(outputFile, 'w').close()
+	b = open(outputFile, 'w')
 
-	line = ""
-	G = {}								#create container for directed graph
-	U = {}								#create container for undirected graph
+        line = ""
+        G = {}                                                          #create container for directed graph
+        U = {}                                                          #create container for undirected graph
+	cost = {}
+	edges = set()
 
-	for line in f.readlines():					#fill up adjacency list (directed & undirected)
-		if line[0] <> '#':
-			row = line.split('\t')
+        for line in f.readlines():                                      #fill up adjacency list (directed & undirected)
+                if line[0] <> '#':
+                        row = line.split(' ')
 
-			if row[0] <> '\n':
-				row[0] = int(row[0])
-				row[1] = int(row[1])
-
-				if row[0] in G:
-					G[row[0]].append(row[1])
+			if (len(row) == 1) and (row[0] <> '\n'):
+				if str((row[0])[0]) == 'D':
+					key = str((row[0])[0])
 				else:
-					G[row[0]] = [row[1]]
+					key = str((row[0])[0]) + str((row[0])[1])
 
-				if row[0] in U:
-					U[row[0]].append(row[1])
-				else:
-					U[row[0]] = [row[1]]
-	
-				if row[1] in U:
-					U[row[1]].append(row[0])
-				else:
-					U[row[1]] = [row[0]]
+                        elif row[0] <> '\n':
+                                row[0] = str(row[0])
+                                row[1] = str(row[1])
+				row[2] = int(row[2])
 
-	C = {}								#containers to fascilitate manipulation
-	P = []
-	D = G
-	C2 = {}
-	P2 = []
-	D2 = U
+				if row[0] not in edges:
+					edges.add(row[0])
+				if row[1] not in edges:
+					edges.add(row[1])
 
-	for key in G:							
-		C[key] = []
-		for item in G[key]:
-			C[item] = []
+				if key == 'D':
+                                	if row[0] in G:
+                                        	G[row[0]].append(row[1])
+                                	else:
+                                        	G[row[0]] = [row[1]]
+					
+					cost[(row[0], row[1])] = row[2]
+					
+				elif key == "UD":
+                                	if row[0] in U:
+                                        	U[row[0]].append(row[1])
+                                	else:
+                                        	U[row[0]] = [row[1]]
 
-	for key in U:
-		C2[key] = []
-		for item in U[key]:
-			C2[item] = []
+                                	if row[1] in U:
+                                        	U[row[1]].append(row[0])
+                                	else:
+                                        	U[row[1]] = [row[0]]
 
-	for key in C:
-		P.append(key)	
+					cost[(row[0], row[1])] = row[2]
 
-	for key in C2:
-		P2.append(key)	
+	counter = len(edges)
+	if key == 'D':				#decide whether directed or undirected
+		adj = G
+	elif key == 'UD':
+		cost = transformToUndirected(cost)
+		adj = U
 
-	for x in P:
-		if x in G:
-			pass
-		else:
-			G[x] = []
+	b.write("Dijkstra\n")
+	b.write("Source : " + sourceNode + '\n')
+	b.write("Node " + sourceNode + " : " + str(0) + '\n')
+	for t in edges:
+		if t <> sourceNode:
+			predecessors, min_cost = dijkstra(adj, cost, sourceNode, t)
+			if min_cost == -1:
+				b.write("Node " + t + " : " + "none" + '\n')
+			else:
+				b.write("Node " + t + " : " + str(min_cost) + '\n')
+	b.write("End Dijkstra\n")
 
-	for x in P2:
-		if x in U:
-			pass
-		else:
-			U[x] = []
+	#now for the shortest reliable paths algorithm
 
-	Q = []								#containers for manipulation
-	T = []
-	Q2 = []
-	T2 = []
+	b.write("Shortest Reliable Paths Algorithm\n")
+	b.write("Integer k : " + str(kInteger) + " Source : " + sourceNode + '\n')
+	if (kInteger > (counter - 1)):
+		b.write("Node " + sourceNode + " : integer larger than |V| - 1" + '\n')
+	else:
+		b.write("Node " + sourceNode + " : " + str(0) + '\n')
+	for t in edges:
+		if t <> sourceNode:
+			paths = find_all_paths(adj, sourceNode, t, kInteger)
+			if (kInteger > (counter - 1)):
+				b.write("Node " + t + " : integer larger than |V| - 1\n")
+			else:
+				b.write("Node " + t + " : " + str(findMinPath(cost, paths)) + '\n')
+	b.write("End Shortest Reliable Paths Algorithm\n")
 
-	for scc in strongly_connected_components(P, G):			#call algorithm and group connected components
-		for x in scc:
-			T.append(x)
+	f.close()
+	b.close()
 
-		Q.append(T)
-		T = []
-
-	for scc in strongly_connected_components(P2, U):		#call algorithm and group connected components
-		for x in scc:
-			T2.append(x)
-
-		Q2.append(T2)
-		T2 = []
-
-	max = len(Q[0])
-	SCC = Q[0]
-
-	for x in Q:							#determine largest strongly connected component
-		if len(x) > max:
-			max = len(x)
-			SCC = x
-
-	max2 = len(Q2[0])				
-	SCC2 = Q2[0]
-
-	for x in Q2:							#determine largest weakly connected component
-		if len(x) > max2:
-			max2 = len(x)
-			SCC2 = x
-
-	total = 0		
-	total2 = 0		
-
-	scc = set(SCC)							#create sets for quicker edge counting
-	for key in D:
-		D[key] = set(D[key])
-
-	scc2 = set(SCC2)						#create sets for quicker edge counting
-	for key in D2:
-		D2[key] = set(D2[key])
-
-	for x in scc:							#count edges in largest SCC
-		for i in D[x]:
-			if i in scc:
-				total += 1
-
-	for x in scc2:							#count edges in largest WCC
-		for i in D[x]:
-			if i in scc2:
-				total2 += 1
-
-	print "Statistics for given graph is as follows:"		#output results and statistics
-	print "Largest WCC"
-	print "Nodes - " + str(max2)
-	print "Edges - " + str(total2)
-	print "Largest SCC"
-	print "Nodes - " + str(max)
-	print "Edges - " + str(total)		
-	print "End"
-
-if __name__ == '__main__':
+if __name__=='__main__':
 	main()
